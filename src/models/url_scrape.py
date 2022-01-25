@@ -3,11 +3,11 @@ from db import db
 
 UrlScrapeJSON = Dict[str, Union[int, str]]
 class UrlScrapeModel():
-    __tablename__ = "urls"
-    my_url = db.Column(db.String(255), primary_key=True)
-    parent = db.Column(db.String(255), nullable=True)
-    title = db.Column(db.String(255), nullable=True)
-    depth = db.Column(db.Integer, nullable=True)
+    # __tablename__ = "urls"
+    # my_url = db.Column(db.String(255), primary_key=True)
+    # parent = db.Column(db.String(255), nullable=True)
+    # title = db.Column(db.String(255), nullable=True)
+    # depth = db.Column(db.Integer, nullable=True)
 
     def __init__(self, current_url: str, parent: str, depth: int):
         self.my_url = current_url

@@ -13,8 +13,8 @@ from models.url_scrape import UrlScrapeModel
 
 # Set for storing urls with same domain
 links_intern = set()
-input_url = "https://magicseaweed.com/Palmahim-Surf-Report/3975/"
-depth = 1
+input_url = "https://www.google.com/"
+depth = 2
 
 # Set for storing urls with different domain
 links_extern = set()
@@ -26,8 +26,12 @@ def level_crawler(input_url: str, depth: int):
 	current_url_domain = urlparse(input_url).netloc
 
 	# Creates beautiful soup object to extract html tags
-	beautiful_soup_object = BeautifulSoup(
-		requests.get(input_url).content, "html.parser")
+	try:
+		beautiful_soup_object = BeautifulSoup(
+			requests.get(input_url).content, "html.parser")
+	except:
+		print('soup error')
+
 
 	queue = get_queue(SQS_NAME)
 	# Access all anchor tags from input
@@ -43,16 +47,15 @@ def level_crawler(input_url: str, depth: int):
 			href += href_parsed.netloc
 			href += href_parsed.path
 			final_parsed_href = urlparse(href)
-			is_valid = bool(final_parsed_href.scheme) and bool(
-				final_parsed_href.netloc)
+			is_valid = bool(final_parsed_href.scheme) and bool(final_parsed_href.netloc)
 			if is_valid:
 				url_scrape = UrlScrapeModel(href, input_url, depth)
 				send_message(queue, json.dumps(url_scrape.json()))
 				if current_url_domain not in href and href not in links_extern:
-					print("Extern - {}".format(href))
+					print("Extern - {} - depth {}".format(href, depth))
 					links_extern.add(href)
 				if current_url_domain in href and href not in links_intern:
-					print("Intern - {}".format(href))
+					print("Intern - {} - depth {}".format(href, depth))
 					links_intern.add(href)
 					temp_urls.add(href)
 	return temp_urls
@@ -72,9 +75,10 @@ else:
 	# links upto a particular depth.
 	queue = []
 	queue.append(input_url)
-	for j in range(depth):
+	for level in range(depth):
+		print('scanning level: {}'.format(level))
 		for count in range(len(queue)):
 			url = queue.pop(0)
-			urls = level_crawler(url, count)
+			urls = level_crawler(url, level)
 			for i in urls:
 				queue.append(i)
