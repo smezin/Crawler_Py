@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 class SnsWrapper:
     """Encapsulates Amazon SNS topic and subscription functions."""
-    def __init__(self, sns_resource):
+    def __init__(self):
         """
         :param sns_resource: A Boto3 Amazon SNS resource.
         """
-        self.sns_resource = sns_resource
+        self.sns_resource = boto3.resource('sns')
 
     def create_topic(self, name):
         """
@@ -242,7 +242,7 @@ def usage_demo():
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-    sns_wrapper = SnsWrapper(boto3.resource('sns'))
+    sns_wrapper = SnsWrapper()
     topic_name = f'demo-basics-topic-{time.time_ns()}'
 
     print(f"Creating topic {topic_name}.")
