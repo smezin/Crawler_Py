@@ -5,7 +5,7 @@ import requests
 import json
 from urllib.request import urlparse
 from helpers.message_wrapper import send_message
-from helpers.queue_wrapper import get_queue
+from helpers.queue_wrapper import get_queue, create_queue
 from consts import SQS_NAME
 from models.url_scrape import UrlScrapeModel
 
@@ -13,15 +13,17 @@ from models.url_scrape import UrlScrapeModel
 
 # Set for storing urls with same domain
 links_intern = set()
-input_url = "https://www.google.com/"
-depth = 2
+input_url = "http://google.com/"
+depth = 1
+max_urls = 200
+crawled_urls = 0
 
 # Set for storing urls with different domain
 links_extern = set()
 
 
 # Method for crawling a url at next level
-def level_crawler(input_url: str, depth: int):
+def level_crawler(input_url: str, depth: int, queue_name: str):
 	temp_urls = set()
 	current_url_domain = urlparse(input_url).netloc
 
@@ -31,9 +33,10 @@ def level_crawler(input_url: str, depth: int):
 			requests.get(input_url).content, "html.parser")
 	except:
 		print('soup error')
-
-
-	queue = get_queue(SQS_NAME)
+		return
+	
+	queue = get_queue(queue_name)
+	
 	# Access all anchor tags from input
 	# url page and divide them into internal
 	# and external categories
@@ -65,7 +68,7 @@ if(depth == 0):
 	print("Intern - {}".format(input_url))
 
 elif(depth == 1):
-	level_crawler(input_url, 1)
+	level_crawler(input_url, 1, SQS_NAME)
 
 else:
 	# We have used a BFS approach
@@ -76,9 +79,9 @@ else:
 	queue = []
 	queue.append(input_url)
 	for level in range(depth):
-		print('scanning level: {}'.format(level))
+		print('scanning level: {}'.format(level+1))
 		for count in range(len(queue)):
 			url = queue.pop(0)
-			urls = level_crawler(url, level)
+			urls = level_crawler(url, level, SQS_NAME)
 			for i in urls:
 				queue.append(i)

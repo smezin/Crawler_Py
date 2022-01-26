@@ -10,10 +10,8 @@ Usage is shown in the test/test_queue_wrapper.py file.
 """
 
 import logging
-
 import boto3
 from botocore.exceptions import ClientError
-
 from consts import SQS_NAME
 
 logger = logging.getLogger(__name__)
@@ -40,8 +38,9 @@ def create_queue(name, attributes=None):
         )
         logger.info("Created queue '%s' with URL=%s", name, queue.url)
     except ClientError as error:
-        logger.exception("Couldn't create queue named '%s'.", name)
-        raise error
+        #logger.exception("Couldn't create queue named '%s'.", name)
+        #raise error
+        return 
     else:
         return queue
 
@@ -57,8 +56,9 @@ def get_queue(name):
         queue = sqs.get_queue_by_name(QueueName=name)
         logger.info("Got queue '%s' with URL=%s", name, queue.url)
     except ClientError as error:
-        logger.exception("Couldn't get queue named %s.", name)
-        raise error
+        #logger.exception("Couldn't get queue named %s.", name)
+        #raise error
+        return
     else:
         return queue
 
