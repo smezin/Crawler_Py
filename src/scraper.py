@@ -32,6 +32,7 @@ def scrape(queue_name: str) -> List[Dict]:
             #Logic thingies here
             for message in messages_body:
                 message['title'] = extract_title(message['my_url'])
+                #write it to db
                 sns_object.publish_message(topic, json.dumps(message), {})
                 print(message)
 

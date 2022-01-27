@@ -9,11 +9,11 @@ class UrlScrapeModel():
     # title = db.Column(db.String(255), nullable=True)
     # depth = db.Column(db.Integer, nullable=True)
 
-    def __init__(self, current_url: str, parent: str, depth: int):
-        self.my_url = current_url
+    def __init__(self, base_url_to_scrape: str, parent: str, depth: int):
+        self.my_url = base_url_to_scrape
         self.parent_url = parent
         self.depth = depth
-        self.title = 'N/A'
+        self.title = None
 
     def json(self) -> UrlScrapeJSON:
         return {
